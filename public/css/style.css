@@ -1,0 +1,58 @@
+html { 
+    background: url(../img/wallpaper.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    /* IE */
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/main_bg_2.jpg', sizingMethod='scale');
+    -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/main_bg_2.jpg', sizingMethod='scale')";
+
+}
+
+/*login container that contains login-form and register-form. The container is centered horizontally and vertically, and both divs are separated with a vertical bar*/
+.login-container {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    height: 30vh;
+    width: 50vh;
+    margin-left:10%;
+    background-color: rgba(126, 181, 252, 0.3);
+    border-radius: 10px;
+    position: absolute;
+    top: 60%;
+    left: 0;
+    padding: 20px;
+}
+
+.container{
+    width: 100vh;
+    height: 100vh;
+
+    position: relative;
+}
+
+.mainTitle {
+    /*login page main title*/
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2em;
+    text-align: center;
+    color: #fff;
+    background-color: rgba(126, 181, 252, 0.3);
+    padding:10px;
+    border-radius:10px;
+    position: relative;
+    top: 10%;
+    left: 10%;
+}
+
+.mainTitle h1 {
+    margin: 10px;
+    
+}
+
+.mainTitle span{
+    color: #ffffffc4;
+    font-size: 20px;
+}

@@ -1,0 +1,48 @@
+<div style="display:none" id="createChar">
+    <h1>Create Characters</h1>
+    <form id="createCharForm" method="post" action="createChar">
+        <!-- Character Name, Character Class, Then 6 inputs for the stats strength constitution dexterity intelligence focus agility -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="" required>
+        <label for="class">Class:</label>
+        <select id="classSelection" name="class" required>
+         </select>
+        
+        <label for="strength">Strength:</label>
+        <input type="number" id="strength" name="strength" >
+        <label for="constitution">Constitution:</label>
+        <input type="number" id="constitution" name="constitution" >
+        <label for="dexterity">Dexterity:</label>
+        <input type="number" id="dexterity" name="dexterity" >
+        <label for="intelligence">Intelligence:</label>
+        <input type="number" id="intelligence" name="intelligence" >
+        <label for="focus">Focus:</label>
+        <input type="number" id="focus" name="focus" >
+        <label for="agility">Agility:</label>
+        <input type="number" id="agility" name="agility" >
+        <label for="remaining">Remaining Points:</label>
+        <input type="text" id="remaining" name="remaining" readonly>
+        <div id="characterImg" class="characterImg">
+            <label class="radio-img">
+                <input type="radio" name="charImg" value="female1" checked required>
+                <div class="image" id="charImg1" style="background-image: url('../img/classtoken/default.webp');"></div>
+            </label>
+            <label class="radio-img">
+                <input type="radio" name="charImg"  value="female2" required>
+                <div class="image" id="charImg2" style="background-image: url('../img/classtoken/default.webp');"></div>
+            </label>
+            <label class="radio-img">
+                <input type="radio" name="charImg"  value="male1" required>
+                <div class="image" id="charImg3" style="background-image: url('../img/classtoken/default.webp');"></div>
+            </label>
+            <label class="radio-img">
+                <input type="radio" name="charImg"  value="male2" required>
+                <div class="image" id="charImg4" style="background-image: url('../img/classtoken/default.webp');"></div>
+            </label>
+        </div>
+        
+
+    
+        <button type="submit">Create</button>
+    </form>
+</div>

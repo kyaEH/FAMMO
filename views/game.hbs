@@ -1,0 +1,59 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game</title>
+    <!--animate.css-->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./css/game.css">
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="game" id="game">
+        {{> createChars}}
+        
+        <div style="display:block" id="characterSelection">
+          <p id="charErrorMsg" class="chatError" style="display:none"></p>
+          
+        {{#if characters}}
+        <div class="characters">
+          {{#each characters}}
+            <div class="character">
+              <h2>{{charactername}}</h2>
+              <p>{{class}} level {{level}}</p>
+              <img src="img/classtoken/{{toLowerCase class}}/{{toLowerCase class}}_{{img}}.webp" alt="Character image" style="width: 20vh;">
+              <button>Play as {{charactername}}</button>
+              <button onclick="deleteChar('{{charactername}}')">Delete {{charactername}}</button>
+            </div>
+            
+          {{/each}}
+        </div>
+      {{else}}
+        <p>No characters found</p>
+      {{/if}}
+      <br>
+      <button id="reqCreateChar">Create character</button>
+</div>
+    </div>
+
+    <div class="gameNav" id="gameNav"></div>
+    
+    <div class="gameMenu" id="gameMenu">
+        {{> header}}
+
+
+<!-- create char button that redirect to chreateChar -->
+
+    </div>
+    {{> chat}}
+   <script src="./js/game.js"></script>
+
+</body>
+</html>
+
+
+
+
+

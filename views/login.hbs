@@ -1,0 +1,129 @@
+<!--login and register page-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/fanta.css">
+    <script src='https://www.google.com/recaptcha/api.js?render=6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg'></script>
+</head>
+<body>
+<!--Login form on the left, register form on the right, same page-->
+<div class="container">
+    <div class="mainTitle"><h1>Aurora's Beam</h1><span>Le Faisceau d'Aurora</span></div>
+    <div class="login-container">
+        <div class="login-form">
+            <h2>Login</h2>
+            <form id="loginForm" method="post" action="login">
+                <input type="text" name="username" placeholder="Username" id="loginUser" required>
+                <input type="password" name="password" placeholder="Password" id="loginPassword" required>
+                <button type="submit">Login</button>
+                <p class="error" id="errorMsg"></p>
+
+            </form>
+        </div>
+        <div class="register-form">
+            <h2>Register</h2>
+            <form id="registerForm" method="post" action="register">
+                <input type="text" name="username" placeholder="Username" id="registerUser" required>
+                <input type="password" name="password" placeholder="Password" id="registerPassword" required>
+                <button type="submit">Register</button>
+                
+                
+            </form>
+        </div>
+    </div>
+    </div>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', onSubmit);
+
+function onSubmit(e) {
+    e.preventDefault();
+
+    grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
+    .then(function(token) {
+        const loginUser = document.getElementById('loginUser').value;
+        const loginPassword = document.getElementById('loginPassword').value;
+        const captcha = token;
+        //disable all input
+        document.getElementById('loginUser').disabled = true;
+        document.getElementById('loginPassword').disabled = true;
+        document.getElementById('loginForm').querySelector('button').disabled = true;
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: loginUser, password: loginPassword, captcha: captcha })
+        })
+        .then(res => res.json()) // Convert response to JSON
+        .then(data => { 
+            console.log(data); // Log response for debugging
+            //enable all input
+            
+
+            if (data.success) {
+                window.location.href = data.redirectUrl;
+            } else {
+                document.getElementById('errorMsg').textContent = data.message; // Display error
+                document.getElementById('loginUser').disabled = false;
+                document.getElementById('loginPassword').disabled = false;
+                document.getElementById('loginForm').querySelector('button').disabled = false;
+            }
+            
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+document.getElementById('registerForm').addEventListener('submit', onSubmitRegister);
+function onSubmitRegister(e){
+    e.preventDefault();
+    //recaptcha
+    grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
+    .then(function(token) {
+        const registerUser = document.getElementById('registerUser').value;
+        const registerPassword = document.getElementById('registerPassword').value;
+        const captcha = token;
+        //disable all input
+        document.getElementById('registerUser').disabled = true;
+        document.getElementById('registerPassword').disabled = true;
+        document.getElementById('registerForm').querySelector('button').disabled = true;
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: registerUser, password: registerPassword, captcha: captcha })
+        })
+        .then(res => res.json()) // Convert response to JSON
+        .then(data => { 
+            console.log(data); // Log response for debugging
+            //enable all input
+            // if data.errors[0].msg is not undefined, display the error message
+            if(data.errors){
+                document.getElementById('errorMsg').textContent = data.errors[0].msg;
+            } else {
+                document.getElementById('errorMsg').textContent = data.message;
+            }
+            
+        
+            document.getElementById('registerUser').disabled = false;
+            document.getElementById('registerUser').value = '';
+            document.getElementById('registerPassword').disabled = false;
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerForm').querySelector('button').disabled = false;
+            
+            
+            
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+
+</script>
+</body>
+</html>

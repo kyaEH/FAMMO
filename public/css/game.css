@@ -1,0 +1,478 @@
+/*This is the main game CSS. There is the bottom where the things are described, or the characters talks*/
+body {
+    background-color: black;
+    background-image: url(../img/moonlight.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+.game{
+    display: flex;
+    margin-top: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+
+
+}
+
+.game img{
+    width: 100%;
+    max-width: 75%;
+    max-height: 75vh;
+
+}
+
+.text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    color: #fff;
+    font-size: large;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+}
+
+.gameNav {
+    display: flex;
+    justify-content: center; /* Centers the buttons horizontally */
+    align-items: center; /* Aligns the buttons vertically */
+    gap: 1rem; /* Adds space between the buttons */
+    background-color: #000;
+}
+
+/* Your existing CSS for game buttons */
+.gameButton {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    background-color: #000;
+    color: #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.inventoryButton {
+    /*Inventory button is smaller and correspond to a single item of the player*/
+    /* No border, no background color, no padding */
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 5px;
+    color:white;
+    margin-bottom: 10px;
+    font-size: large;
+    text-decoration: underline;
+    padding: 5px;
+    width: 90%;
+}
+.inventoryButton:hover {
+    /*Hover effect, change the color to a light blue*/
+    color: rgb(220, 254, 255);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.actions {
+    border: 2px solid #fff;
+    color: #fff;
+    /*Italic text*/
+    font-style: italic;
+}
+button:disabled,
+button[disabled]{
+  border: 1px solid #bebebe;
+
+  color: #bebebe;
+}
+
+.actionsText{
+    /*Animation fadein then fadeout after a delay with animate.css*/
+    font-style: italic;
+
+}
+
+.roomTextIn{
+    animation: fadeIn 1s;
+}
+
+.roomTextOut{
+    animation: fadeOut 1s;
+}
+
+/*image fade in and image fade out*/
+
+.roomImgIn{
+    animation: fadeIn 1s;
+}
+
+.roomImgOut{
+    animation: fadeOut 1s;
+}
+
+/*CharacterPortrait is on the middle of the page, above other elements*/
+.characterPortrait{
+    position: absolute; 
+    left: 0; 
+    right: 0; 
+    top:0;
+    bottom:25px;
+    margin-left: auto; 
+    margin-right: auto; 
+    margin-top: auto;
+    margin-bottom:auto;
+    max-width:  40vh; /* Need a specific value to work */
+    /*Height that keeps the child ratio image*/
+    max-height: 45vh;
+}
+
+.characterPortrait img{
+    /*keeps ratio of the image*/
+    width: 100%;
+    max-height: 100%;
+    
+}
+
+.blur {
+    /*Blur and small black and white or brighness*/
+    filter: blur(5px) grayscale(25%);
+}
+/*unblur class wich is a animation from blur 5px and grayscale 25% to 0*/
+.unblur {
+    animation: unblur 1s;
+}
+@keyframes unblur {
+    0% {    -webkit-filter: blur(5px) grayscale(25%);}
+   28% { -webkit-filter: blur(5px) grayscale(25%);}
+  100% {  -webkit-filter: blur(0px) grayscale(0%);}
+ }
+
+.gameMenu{
+    /*this menu is like a navbar on the left. It will includes 2 divs, one for a counter, and one for the items inventory*/
+    /*Dont align the items in the vertical center*/
+    /*autoscale the inventory width*/
+
+    padding:10px;
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom:auto;
+    width: 15vh;
+    /*Add a sweet background color with rounded border for an inventory*/
+    background-color: #272727a1;
+    border-radius: 10px;
+    margin:10px;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    height: 70vh;
+}
+
+/*loadingbar should be placed on the bottom right of the screen*/
+.loadingbar{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 10px;
+    padding: 10px;
+    background-color: #44444488;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    width: 400px;
+    height: 8px;
+}
+
+.loadingbar .bar {
+    width: 1%;
+  height: 10px;
+  background-color: #8b8b8b;
+  border-radius: 5px;
+}
+
+.popup{
+        /*popup is a div that will be on the center of the screen*/
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 50%;
+    height: 50%;
+    padding: 10px;
+    background-color: #44444488;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    display: none;
+}
+
+.popup img{
+    width: 100%;
+    max-width: 75%;
+    max-height: 75vh;
+}
+
+.popup p{
+    text-align: center;
+    font-size: large;
+}
+
+.popup .close{
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 10px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/*animation keyframes*/
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes fadeOut {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+.characters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    background-color: #272727a1;
+    border-radius: 5px;
+    padding:1rem;   
+}
+
+.character {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    background-color: #b3b3b30a;
+    border-radius: 5px;
+    margin: 5px;
+    padding:5px;
+    width: 18vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+}
+
+.image {
+    opacity: 0.8;
+    width: 15vh;
+    height: 15vh;
+    background-position: center center;
+    background-size: cover;
+    display: inline-block;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.image:hover {
+    opacity: 1;
+}
+
+/* Hide radio buttons */
+.radio-img input { 
+    display: none;
+}
+
+/* Make sure clicking the image selects the radio button */
+.radio-img input:checked + .image { 
+    border: 2px solid orange;
+}
+
+/* Ensure the label is clickable */
+.radio-img {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.chatError{
+    background-color: #8b000086;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.gameChat{
+    display: flex;
+    flex-direction: column;
+
+    background-color: #3838385d;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+
+    overflow-y: scroll;
+}
+
+.gameChat input{
+    width: 50%;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    background-color: #0b0b0beb;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    margin: 5px auto;
+}
+
+.gameChat button{
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    background-color: #0b0b0beb;;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    cursor: pointer;
+    margin: 5px auto;
+    width: 50%;
+}
+
+.gameChat .chat {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: #0b0b0beb;;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 5px;
+    height: 12vh;
+    width: 50%;
+    text-align: left;
+    margin: 5px auto;
+}
+
+.gameChat .chat div {
+    margin: 1px;
+    line-height: 0.2;
+}
+
+.character-creation-container {
+    max-width: 500px;
+    margin: auto;
+    background: #222;
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.stat-explanation {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.stat-explanation h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.stat-explanation p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input, select {
+    margin-top: 3px;
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+button:hover {
+    background: #218838;
+}
+
+#characterImg {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.radio-img {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.radio-img input {
+    display: none;
+}
+
+.image {
+    width: 12vh;
+    height: 12vh;
+    background-size: cover;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.radio-img input:checked + .image {
+    border-color: #28a745;
+}
+
+.characterImg{
+    background-color: #0b0b0b5e;
+}
+
+#createChar{
+    background-color: #0b0b0b5e;
+    padding:5px;
+    border-radius: 5px;
+}
