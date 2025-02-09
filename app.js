@@ -37,13 +37,24 @@ const request = require('request');
 blocklist.downloadBlocklist();
 cron.schedule('0 */2 * * *', () => {
     blocklist.downloadBlocklist();
+    testDb("Cron job in App.js");
 });
+var port = process.env.PORT || 42069;
+// get -p parameter
+const args = process.argv.slice(2);
+if (args.length > 0)
+    port = args[0];
+
+
 
 //read the wordlist which contains banned words for the chat
 const wordlist = blocklist.getWordList();
 
-
-//test the blocklist with ip 1.65.255.225
+const ipBlocker = require('./middleware/ipBlocker');
+const sessionHandler = require('./middleware/sessionHandler');
+const indexRouter = require('./routes/index');
+const loginRouter = require('./routes/login');
+const createCharacterRouter = require('./routes/characters/create');
 
 // Setting the view engine
 app.set('view engine', 'hbs');
@@ -51,6 +62,7 @@ app.set('views', path.join(__dirname, 'views'));
 hbs.registerPartials(path.join(__dirname, 'views', 'partials'));
 
 // Setting the middleware
+app.use(ipBlocker);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -58,65 +70,11 @@ app.use(bodyParser.json());
 sessionMiddleware = session({ secret: 'secret', resave: false, saveUninitialized: false })
 app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
+
 // Setting the routes
-app.get('/', (req, res) => {
-    //if user is logged in, redirect to /game, else redirect to /login
-    //check requester ip in blocklist
-    var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log("IP on /: " + clientip);
-    if(blocklist.checkIp(clientip)) return;
-    
-    if (req.session?.username) {
-        res.redirect('/game');
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.get('/login', (req, res) => {
-    //if user is already logged in, redirect to /game
-    var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if(blocklist.checkIp(clientip)) return;
-    if (req.session?.username) {
-        res.redirect('/game');
-    } else {
-        res.render('login');
-    }
-});
-
-app.post('/login', (req, res) => {
-    var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if(blocklist.checkIp(clientip)) return;
-    console.log("LOGIN REQUEST");
-
-    // reCAPTCHA Verification
-    var verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaKey}&response=${req.body.captcha}`;
-    setTimeout(() => {
-    request(verifyUrl, (err, response, body) => {
-        body = JSON.parse(body);
-        console.log(body);
-        if (body.success !== undefined && !body.success) {
-            return res.json({ success: false, message: "Failed captcha verification" });
-        }
-
-        // Get username & password from request
-        const { username, password } = req.body;
-
-        // Check if user exists in DB
-        db.login(username, password, (result) => {
-            if (result) {
-                req.session.username = username;
-
-                // Send JSON response instead of redirecting directly
-                return res.json({ success: true, redirectUrl: "/game" });
-            } else {
-                return res.json({ success: false, message: "Invalid username or password" });
-            }
-        });
-    });
-    }, 1000);
-});
-
+app.use('/', indexRouter);
+app.use('/', loginRouter);
+app.use('/', createCharacterRouter);
 
 app.get('/register', (req, res) => {
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -182,7 +140,7 @@ app.post('/register', [
     });
 });
 
-app.get('/game', (req, res) => {
+app.get('/game', sessionHandler, (req, res) => {
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if(blocklist.checkIp(clientip)) return;
     //if user is not logged in, redirect to /login
@@ -190,33 +148,18 @@ app.get('/game', (req, res) => {
         res.redirect('/login');
     } else {
         //get characters from the user
+        //if user have a charname in session, delete it
+        if (req.session.charname) {
+            delete req.session.charname;
+        }
         dsheet.getCharacters(req.session.username, (characters) => {
-            //render the game page with the characters
+            //if have ch
             res.render('game', { username: req.session.username, characters: characters });
         });
     }
 });
 
-app.get('/createcharacter',[
-    body('name')
-        .trim()
-        .escape()  // Escape special characters
-        .isLength({ min: 3, max: 15 }).withMessage('Character name must be between 3 and 15 characters'),
-    body('strength')
-        .isInt({ min: 1, max: 100 }).withMessage('Strength must be between 1 and 100'),
-    body('constitution')
-        .isInt({ min: 1, max: 100 }).withMessage('Constitution must be between 1 and 100'),
-    body('dexterity')
-        .isInt({ min: 1, max: 100 }).withMessage('Dexterity must be between 1 and 100'),
-    body('intelligence')
-        .isInt({ min: 1, max: 100 }).withMessage('Intelligence must be between 1 and 100'),
-    body('focus')
-        .isInt({ min: 1, max: 100 }).withMessage('Focus must be between 1 and 100'),
-    body('agility')
-        .isInt({ min: 1, max: 100 }).withMessage('Agility must be between 1 and 100'),
-    body('class')
-        .isLength({ min: 1 }).withMessage('Class is required')
-], (req, res) => {
+app.get('/createcharacter', sessionHandler, (req, res) => {
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if(blocklist.checkIp(clientip)) return;
     //if user is not logged in, redirect to /login
@@ -254,7 +197,7 @@ app.post('/logout', (req, res) => {
 // Starting the server
 
 
-app.post('/getallclasses', (req, res) => {
+app.post('/getallclasses', sessionHandler, (req, res) => {
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if(blocklist.checkIp(clientip)) return;
     //send all classes to the client
@@ -273,7 +216,7 @@ app.post('/createChar', (req, res) => {
     if(blocklist.checkIp(clientip)) return;
     //check if user is connected
     if (!req.session.username) {
-        res.send('You are not connected');
+        res.json({ success: false, message: 'You are not connected' });
         return;
     }
     const charactername = req.body.name;
@@ -288,7 +231,7 @@ app.post('/createChar', (req, res) => {
     // for each stat, check if it is above 0
     for (var key in stats) {
         if (stats[key] < 0) {
-            res.redirect('/game?errormsg=Stats must be above 0');
+            res.json({ success: false, message: 'Stats must be above 0' });
             return;
         }
     }
@@ -300,16 +243,15 @@ app.post('/createChar', (req, res) => {
         console.log("User " + req.session.username + " created character " + charactername + " with stats " + JSON.stringify(stats));
         //if result[0] is true, character is created
         if (result[0]) {
-            res.redirect('/game');
+            res.json({ success: true, message: 'Character created successfully' });
         } else {
             //if result[0] is false, character is not created
-            res.redirect('/game?errormsg=' + result[1]);
+            res.json({ success: false, message: result[1] });
         }
     });
-
 });
 
-app.post('/deleteCharacter', (req, res) => {
+app.post('/deleteCharacter', sessionHandler, (req, res) => {
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if(blocklist.checkIp(clientip)) return;
     //check if user is connected
@@ -327,13 +269,80 @@ app.post('/deleteCharacter', (req, res) => {
     });
 });
 
+app.post('/play', sessionHandler, (req, res) => {
+    var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    if(blocklist.checkIp(clientip)) return;
+    //check if user is connected
+    if (!req.session.username) {
+        res.json({ success: false, message: 'You are not connected' });
+        return;
+    }
+    //get the character name from the request
+    const charactername = req.body.charactername;
+    console.log(req.body);
+    //check if the character is owned by the user
+    dsheet.getCharacter(req.session.username, charactername, (character) => {
+        //if the character is owned by the user, set the session charname and return success
+        if (character) {
+            req.session.charname = charactername;
+            console.log(character);
+            res.json({ success: true });
+        } else {
+            //if the character is not owned by the user, return failure
+            res.json({ success: false, message: 'Character not found or not owned by you' });
+        }
+    });
+});
+
+app.get('/play', sessionHandler, (req, res) => {
+    var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    if(blocklist.checkIp(clientip)) return;
+    //check if user is connected
+    if (!req.session.username) {
+        res.redirect('/login');
+        return;
+    }
+    //if user is not connected, redirect to /login
+    if (!req.session.charname) {
+        res.redirect('/game');
+        return;
+    }
+    //get the character name from the session
+    const charactername = req.session.charname;
+    //get the character from the database
+    dsheet.getCharacter(req.session.username, charactername, (character) => {
+        //if the character is not found, redirect to /game
+        if (!character) {
+            res.redirect('/game');
+            return;
+        }
+        //render the play page with the character
+        //get the map from the database
+        game.getMap(character.location, (map) => {
+            //for each map.maptriggerid, getTriggerFromId 
+            var triggers = [];
+            for (var i = 0; i < map.maptriggerid.length; i++) {
+                game.getTriggerFromId(map.maptriggerid[i], (trigger) => {
+                    triggers.push(trigger);
+                });
+            }
+            
+            setTimeout(() => {
+                res.render('gameEngine', {username: req.session.username, character: character, map: map, triggers: triggers});
+            }, 3000);
+        });
+        
+        
+    });
+});
+
 //fallback * 
 app.get('*', (req, res) => {
     //check ip and log it
     var clientip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     //log the url checked
     console.log("Checking URL: " + req.url);
-    if(blocklist.addRewiedIp(clientip)) 
+    if(blocklist.addReviewedIp(clientip)) 
         {
             console.log("IP BLOCKED" + clientip);
             return;
@@ -346,7 +355,13 @@ io.on('connection', (socket) => {
     if (!session.username) {
         return;
     }
-    io.emit('chat message', session.username+' has connected to the chat');
+    if(session.charname){
+        var username = session.charname;
+    }
+    else{
+        var username = session.username;
+    }
+    io.emit('chat message', username+' has connected to the chat');
     
     //if user is not connected, return
     
@@ -363,25 +378,55 @@ io.on('connection', (socket) => {
         }
 
         //log user name and message
-        console.log(session.username + ': ' + msg);
+        console.log(username+ ': ' + msg);
         //check if message contains banned words
         
         if (wordlist.some(word => msg.toLowerCase().includes(word))) {
             //if message contains banned words, send a message to the user
-            console.log('User ' + session.username + ' used banned words');
+            console.log('User ' + session.username + ' used banned words: '+msg);
             socket.emit('chat message', 'You cannot use banned words');
             return;
         }
         //send to everyone
-        io.emit('chat message', session.username + ': ' + msg);
+        io.emit('chat message', username + ': ' + msg);
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+    socket.on("newPlayer", (msg) => {
+        console.log("new player:" + username);
+        //if user is not connected, return
+        if (!session.username) {
+            return;
+        }
+        //session charname
+        //get the character name from the db
+        var location = 1;
+        dsheet.getCharacter(session.username, session.charname, (character) => {
+            location = character.location;
+            socket.broadcast.emit('newPlayer', character);
+        });
+
+        //get all character inside of the character map
+        
+        
+    });
+    socket.on('playerMovement', (msg) => {
+        console.log(msg);
+        //if user is not connected, return
+        if (!session.username) {
+            return;
+        }
+        //
+        //if user is connected, send the message to everyone
+        io.emit('playerMovement', msg, username);
+    });
+
+    
 });
 
-http.listen(80, '0.0.0.0', () => {
-    console.log('Server started on http://localhost:80');
+http.listen(port, '0.0.0.0', () => {
+    console.log('Server started on port ' + port);
 });
 
 

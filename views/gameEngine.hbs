@@ -1,0 +1,52 @@
+<!--game view, let's make a grid retrieved from the map data-->
+<!--here is the map data:
+{
+  "mapid": 1,
+  "mapimg": "lobby.webp",
+  "mapgrid": "20x20",
+  "mapname": "Lobby",
+  "maptriggerid": [
+    1,
+    2
+  ]
+}
+-->
+<html>
+    <head></head>
+    <body>
+        <h1>Game is loading</h1>
+        <div id="gameDatas">
+            <h1>Username</h1>
+            {{#each username}}
+                <input id="{{@key}}" value="{{this}}"><br>
+            {{/each}} 
+            <h1>Character</h1>
+            {{#each character}}
+                {{#ifeq @key "stats"}} 
+                    {{#each this}}
+                        <input id="{{@key}}" value="{{this}}"><br>
+                    {{/each}}
+                    
+                {{/ifeq}}
+                {{#ifnoteq @key "stats"}} 
+                    <input id="{{@key}}" value="{{this}}"><br>
+                {{/ifnoteq}}
+                
+            {{/each}} 
+            <h1>Map</h1>
+            {{#each map}}
+                <input id="{{@key}}" value="{{this}}"><br>
+            {{/each}} 
+            <h1>Triggers</h1>
+            {{#each triggers}}
+                {{#each this}}
+                    <input id="{{@key}}" value="{{this}}"><br>
+                {{/each}}
+            {{/each}}
+
+        </div>
+        <script>
+
+        </script>
+    </body>
+</html>

@@ -1,7 +1,10 @@
 
-You are logged in as <span id="username">{{username}}</span>.
+
+
+        You are logged in as <span id="username">{{username}}</span>.
 click here to logout <!--post request /logout button-->
-<form action="/logout" method="post">
+<form action="/logout" method="post" onsubmit="return confirm('Are you sure you want to logout?');">
     <button type="submit">Logout</button>
 </form>
 <button id="chatToggle">Show/Hide Chat</button>
+

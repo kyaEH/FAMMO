@@ -1,7 +1,7 @@
 /*This is the main game CSS. There is the bottom where the things are described, or the characters talks*/
 body {
     background-color: black;
-    background-image: url(../img/moonlight.png);
+    background-image: url(../img/wallpaper2.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -369,7 +369,7 @@ button[disabled]{
     padding: 5px;
     border-radius: 5px;
     margin: 5px;
-    height: 12vh;
+    height: 10vh;
     width: 50%;
     text-align: left;
     margin: 5px auto;
@@ -461,6 +461,8 @@ button:hover {
     border: 2px solid transparent;
     border-radius: 4px;
     cursor: pointer;
+    background-repeat:no-repeat;
+background-position: center center;
 }
 
 .radio-img input:checked + .image {
@@ -475,4 +477,19 @@ button:hover {
     background-color: #0b0b0b5e;
     padding:5px;
     border-radius: 5px;
+}
+
+video {
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+}
+
+.characterToken {
+    position: absolute;
+    /* The width and height will be set dynamically in the inline style */
 }

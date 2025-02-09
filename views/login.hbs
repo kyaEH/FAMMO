@@ -1,129 +1,170 @@
-<!--login and register page-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login</title>
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/fanta.css">
+    <meta name="description" content="Aurora's Beam MMO- Le Faisceau d'Aurora MMO" />
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <!-- Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+
+    <!-- Custom styles for this example -->
+    <link rel="stylesheet" href="css/style.css" />
     <script src='https://www.google.com/recaptcha/api.js?render=6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg'></script>
 </head>
 <body>
-<!--Login form on the left, register form on the right, same page-->
-<div class="container">
-    <div class="mainTitle"><h1>Aurora's Beam</h1><span>Le Faisceau d'Aurora</span></div>
-    <div class="login-container">
-        <div class="login-form">
-            <h2>Login</h2>
-            <form id="loginForm" method="post" action="login">
-                <input type="text" name="username" placeholder="Username" id="loginUser" required>
-                <input type="password" name="password" placeholder="Password" id="loginPassword" required>
-                <button type="submit">Login</button>
-                <p class="error" id="errorMsg"></p>
+    <!-- Nav -->
+    <video playsinline autoplay muted loop poster="/img/wallpaper.jpg">
+    <source src="/img/wallpaper.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+    <nav class="container-fluid">
 
-            </form>
-        </div>
-        <div class="register-form">
-            <h2>Register</h2>
-            <form id="registerForm" method="post" action="register">
-                <input type="text" name="username" placeholder="Username" id="registerUser" required>
-                <input type="password" name="password" placeholder="Password" id="registerPassword" required>
-                <button type="submit">Register</button>
-                
-                
-            </form>
-        </div>
-    </div>
-    </div>
-<script>
-    document.getElementById('loginForm').addEventListener('submit', onSubmit);
+    </nav>
+    <!-- ./ Nav -->
 
-function onSubmit(e) {
-    e.preventDefault();
-
-    grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
-    .then(function(token) {
-        const loginUser = document.getElementById('loginUser').value;
-        const loginPassword = document.getElementById('loginPassword').value;
-        const captcha = token;
-        //disable all input
-        document.getElementById('loginUser').disabled = true;
-        document.getElementById('loginPassword').disabled = true;
-        document.getElementById('loginForm').querySelector('button').disabled = true;
-        fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username: loginUser, password: loginPassword, captcha: captcha })
-        })
-        .then(res => res.json()) // Convert response to JSON
-        .then(data => { 
-            console.log(data); // Log response for debugging
-            //enable all input
+    <!-- Main -->
+    <main class="container" id="main">
+        <h2>Aurora's Beam <span style="font-size:small">Le faisceau d'Aurora</span></h2>
+        <article class="grid" style="background-color: #1515158a;">
             
-
-            if (data.success) {
-                window.location.href = data.redirectUrl;
-            } else {
-                document.getElementById('errorMsg').textContent = data.message; // Display error
-                document.getElementById('loginUser').disabled = false;
-                document.getElementById('loginPassword').disabled = false;
-                document.getElementById('loginForm').querySelector('button').disabled = false;
-            }
-            
-        })
-        .catch(error => console.error('Error:', error));
-    });
-}
-document.getElementById('registerForm').addEventListener('submit', onSubmitRegister);
-function onSubmitRegister(e){
-    e.preventDefault();
-    //recaptcha
-    grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
-    .then(function(token) {
-        const registerUser = document.getElementById('registerUser').value;
-        const registerPassword = document.getElementById('registerPassword').value;
-        const captcha = token;
-        //disable all input
-        document.getElementById('registerUser').disabled = true;
-        document.getElementById('registerPassword').disabled = true;
-        document.getElementById('registerForm').querySelector('button').disabled = true;
-        fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username: registerUser, password: registerPassword, captcha: captcha })
-        })
-        .then(res => res.json()) // Convert response to JSON
-        .then(data => { 
-            console.log(data); // Log response for debugging
-            //enable all input
-            // if data.errors[0].msg is not undefined, display the error message
-            if(data.errors){
-                document.getElementById('errorMsg').textContent = data.errors[0].msg;
-            } else {
-                document.getElementById('errorMsg').textContent = data.message;
-            }
-            
+            <div>
+                <hgroup>
+                    <h1>Login</h1>
+                    <p>Access your account</p>
+                </hgroup>
+                <form id="loginForm" method="post" action="login">
+                    <input type="text" name="username" placeholder="Username" id="loginUser" required>
+                    <input type="password" name="password" placeholder="Password" id="loginPassword" required>
+                    <button type="submit" class="contrast">Login</button>
+                    <p class="error" id="errorMsg"></p>
+                </form>
+            </div>
+            <div>
+                <hgroup>
+                    <h1>Register</h1>
+                    <p>Create a new account</p>
+                </hgroup>
+                <form id="registerForm" method="post" action="register">
+                    <input type="text" name="username" placeholder="Username" id="registerUser" required>
+                    <input type="password" name="password" placeholder="Password" id="registerPassword" required>
+                    <button type="submit" class="contrast">Register</button>
+                </form>
+            </div>
+        </article>
         
-            document.getElementById('registerUser').disabled = false;
-            document.getElementById('registerUser').value = '';
-            document.getElementById('registerPassword').disabled = false;
-            document.getElementById('registerPassword').value = '';
-            document.getElementById('registerForm').querySelector('button').disabled = false;
-            
-            
-            
-        })
-        .catch(error => console.error('Error:', error));
-    });
-}
+        <audio id="music" style="border-radius:5px;height:20px;margin:5px;" autoplay controls>
+            <source src="music.mp3" type="audio/mpeg">
+            Votre navigateur ne supporte pas la balise audio.
+        </audio>
+        
+</iframe> 
+    </main>
+    <!-- ./ Main -->
 
-</script>
+    <!-- Footer -->
+
+    <!-- ./ Footer -->
+
+    <script>
+        
+        document.getElementById('music').volume = 0.2;
+        var bool = false;
+        document.addEventListener('keydown', function(event) {
+            if(!bool){
+                document.getElementById('music').play();
+                bool = true;
+            }
+            
+        });
+        document.body.addEventListener('click', function(event) {
+            if(!bool){
+                document.getElementById('music').play();
+                bool = true;
+            }
+        });
+        //id main on hover play music
+
+
+        document.getElementById('loginForm').addEventListener('submit', onSubmit);
+
+        function onSubmit(e) {
+            e.preventDefault();
+            grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
+            .then(function(token) {
+                const loginUser = document.getElementById('loginUser').value;
+                const loginPassword = document.getElementById('loginPassword').value;
+                const captcha = token;
+                //disable all input
+                document.getElementById('loginUser').disabled = true;
+                document.getElementById('loginPassword').disabled = true;
+                document.getElementById('loginForm').querySelector('button').disabled = true;
+                fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: loginUser, password: loginPassword, captcha: captcha })
+                })
+                .then(res => res.json()) // Convert response to JSON
+                .then(data => { 
+                    console.log(data); // Log response for debugging
+                    //enable all input
+                    if (data.success) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        document.getElementById('errorMsg').textContent = data.message; // Display error
+                        document.getElementById('loginUser').disabled = false;
+                        document.getElementById('loginPassword').disabled = false;
+                        document.getElementById('loginForm').querySelector('button').disabled = false;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', onSubmitRegister);
+        function onSubmitRegister(e){
+            e.preventDefault();
+            //recaptcha
+            grecaptcha.execute('6Lc_lc4qAAAAAO02N28xf-p0_u8sNktPJW3KMpfg', { action: 'homepage' })
+            .then(function(token) {
+                const registerUser = document.getElementById('registerUser').value;
+                const registerPassword = document.getElementById('registerPassword').value;
+                const captcha = token;
+                //disable all input
+                document.getElementById('registerUser').disabled = true;
+                document.getElementById('registerPassword').disabled = true;
+                document.getElementById('registerForm').querySelector('button').disabled = true;
+                fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: registerUser, password: registerPassword, captcha: captcha })
+                })
+                .then(res => res.json()) // Convert response to JSON
+                .then(data => { 
+                    console.log(data); // Log response for debugging
+                    //enable all input
+                    if(data.errors){
+                        document.getElementById('errorMsg').textContent = data.errors[0].msg;
+                    } else {
+                        document.getElementById('errorMsg').textContent = data.message;
+                    }
+                    document.getElementById('registerUser').disabled = false;
+                    document.getElementById('registerUser').value = '';
+                    document.getElementById('registerPassword').disabled = false;
+                    document.getElementById('registerPassword').value = '';
+                    document.getElementById('registerForm').querySelector('button').disabled = false;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+    </script>
 </body>
 </html>

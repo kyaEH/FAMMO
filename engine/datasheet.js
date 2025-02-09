@@ -2,21 +2,10 @@
 // import the mongoose module
 
 
-const {client} = require('./db');
+const {client, testDb} = require('./db');
 
-function run(from) {
-    try {
-      // Connect the client to the server	(optional starting in v4.7)
-      client.connect();
-      // Send a ping to confirm a successful connection
-      client.db("admin").command({ ping: 1 });
-      console.log("Pinged your deployment. You successfully connected to MongoDB from " + from);
-    } finally {
-      // Ensures that the client will close when you finish/error
-      client.close();
-    }
-  }
-  run("Datasheet");
+
+testDb("Datasheet");
 //get all the characters from a user
 async function getCharacters(username, callback) {
     // connect to the database
@@ -36,6 +25,26 @@ async function getCharacters(username, callback) {
         callback(false);
     }
 }
+
+async function getCharacter(username, charactername, callback) {
+    // connect to the database
+    await client.connect();
+    // select the database
+    const db = client.db('FAMMO');
+    // select the collection
+    const collection = db.collection('character');
+    // check if the user exists
+    const character = await collection.findOne({ linkeduser: username, charactername: charactername });
+    // if the character exists
+    if (character) {
+        // return false
+        callback(character);
+    } else {
+        // return true
+        callback(false);
+    }
+}
+
 async function createCharacter(charactername, username, stats, characterclass, characterimg, callback) {
     // connect to the database
     await client.connect();
@@ -69,14 +78,16 @@ async function createCharacter(charactername, username, stats, characterclass, c
         //if the total stats is not 10
         var total = 0;
         for (var key in stats) {
-            total += stats[key];
+            total += Number(stats[key]);
         }
+   
         if (total != 10) {
             callback([false, "Total stats must be 10"]);
             return;
         }
-
-        await collection.insertOne({ charactername: charactername, linkeduser: username, stats: stats, class: characterclass, img: characterimg, level: 0 });
+        var actualLocation = 1;
+        var coords = "5x5";
+        await collection.insertOne({ charactername: charactername, linkeduser: username, stats: stats, class: characterclass, img: characterimg, level: 0, exp: 0, location: actualLocation, coords: coords });
         callback([true, "Character "+charactername+" created"]);
         
     }
@@ -126,4 +137,24 @@ async function deleteCharacter(charactername, username, callback) {
     }
 }
 
-module.exports = { createCharacter, getCharacters, getAllClasses, deleteCharacter };
+//get all the players in a location
+async function getPlayersInLocation(location, callback) {
+    // connect to the database
+    await client.connect();
+    // select the database
+    const db = client.db('FAMMO');
+    // select the collection
+    const collection = db.collection('character');
+    // check if the user exists
+    const characters = await collection.find({ location: location }).toArray();
+    // if the character exists
+    if (characters) {
+        // return false
+        callback(characters);
+    } else {
+        // return true
+        callback(false);
+    }
+}
+
+module.exports = { createCharacter, getCharacters, getAllClasses, deleteCharacter, getCharacter, getPlayersInLocation };

@@ -17,6 +17,15 @@ const client = new MongoClient(uri, {
     }
 });
 
+function testDb(from){
+    //ping mongo db
+    client.connect();
+          // Send a ping to confirm a successful connection
+    client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB from " + from);
+}
+testDb("db.js");
+
 function hashPassword(password, salt, callback) {
     // Higher iterations mean better security but slower process
     const iterations = 10000;
@@ -83,5 +92,5 @@ async function login(username, password, callback) {
     }});
 }
   // export the connection
-module.exports = { client, register, login};
+module.exports = { client, register, login, testDb };
 
