@@ -319,17 +319,11 @@ app.get('/play', sessionHandler, (req, res) => {
         //render the play page with the character
         //get the map from the database
         game.getMap(character.location, (map) => {
-            //for each map.maptriggerid, getTriggerFromId 
-            var triggers = [];
-            for (var i = 0; i < map.maptriggerid.length; i++) {
-                game.getTriggerFromId(map.maptriggerid[i], (trigger) => {
-                    triggers.push(trigger);
-                });
-            }
-            
-            setTimeout(() => {
+            game.getTriggers(character.location, (triggers) => {
                 res.render('gameEngine', {username: req.session.username, character: character, map: map, triggers: triggers});
-            }, 3000);
+            });
+            
+
         });
         
         
@@ -401,7 +395,7 @@ io.on('connection', (socket) => {
         }
         //session charname
         //get the character name from the db
-        var location = 1;
+        //get all the session charname connected
         dsheet.getCharacter(session.username, session.charname, (character) => {
             location = character.location;
             socket.broadcast.emit('newPlayer', character);
@@ -411,15 +405,13 @@ io.on('connection', (socket) => {
         
         
     });
-    socket.on('playerMovement', (msg) => {
-        console.log(msg);
+    socket.on("movePlayer", (msg) => {
+        //msg is array of [x, y]
         //if user is not connected, return
         if (!session.username) {
             return;
         }
-        //
-        //if user is connected, send the message to everyone
-        io.emit('playerMovement', msg, username);
+        socket.broadcast.emit('movePlayer', username ,msg);
     });
 
     

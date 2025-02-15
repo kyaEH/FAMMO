@@ -15,6 +15,11 @@ const playMusic = () => {
     }
 };
 
+document.getElementById('music').addEventListener('ended', function() {
+    this.currentTime = 0;
+    this.play();
+}, false);
+
 document.addEventListener('keydown', playMusic);
 document.body.addEventListener('click', playMusic);
 

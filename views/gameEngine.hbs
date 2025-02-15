@@ -12,10 +12,61 @@
 }
 -->
 <html>
-    <head></head>
+    <head>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f0f0f0;
+            }
+            .game {
+                display: grid;
+                grid-template-columns: repeat(20, 1fr);
+                grid-template-rows: repeat(20, 1fr);
+                overflow: hidden;
+                width: 100vh; /* 10 cells * 9vh */
+                height: 100vh; /* 10 cells * 9vh */
+                position: relative;
+                background-color: #fff;
+                border: 2px solid #ccc;
+            }
+            .cell {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: transparent;
+                border-top: 1px dotted rgb(204, 204, 204);
+                border-left: 1px dotted rgb(204, 204, 204);
+                width: 7.5vh;
+                height: 7.5vh;
+            }
+            .map {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                background-size: cover;
+                background-position: center;
+            }
+            .player {
+                position: absolute;
+                width: 7.5vh;
+                height: 7.5vh;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+        </style>
+    </head>
     <body>
-        <h1>Game is loading</h1>
-        <div id="gameDatas">
+
+        <button onclick="document.getElementById('gameDatas').style.display = 'block'">Show game data</button>
+        <div id="gameDatas" style="display:none">
             <h1>Username</h1>
             {{#each username}}
                 <input id="{{@key}}" value="{{this}}"><br>
@@ -26,26 +77,163 @@
                     {{#each this}}
                         <input id="{{@key}}" value="{{this}}"><br>
                     {{/each}}
-                    
                 {{/ifeq}}
                 {{#ifnoteq @key "stats"}} 
                     <input id="{{@key}}" value="{{this}}"><br>
                 {{/ifnoteq}}
-                
             {{/each}} 
             <h1>Map</h1>
             {{#each map}}
                 <input id="{{@key}}" value="{{this}}"><br>
             {{/each}} 
             <h1>Triggers</h1>
+            {{log triggers}}
             {{#each triggers}}
+            {{log this}}
                 {{#each this}}
                     <input id="{{@key}}" value="{{this}}"><br>
                 {{/each}}
             {{/each}}
-
         </div>
+        <div id="game" class="game">
+            <div id="mapimg" class="map"></div>
+        </div>
+        <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
         <script>
+            const socket = io();
+            const playerClass = document.getElementById("class").value.toLowerCase();
+            const playerImg = document.getElementById("img").value;
+            const playerImgUrl = `./img/classtoken/${playerClass}/${playerClass}_${playerImg}.webp`;
+            const mapImgName = document.getElementById("mapimg").value; // Use the map image name directly
+            socket.emit("newPlayer");
+            function initMap(){
+                const mapGrid = document.getElementById("mapgrid").value;
+                const [rows, cols] = mapGrid.split("x").map(Number);
+                const game = document.getElementById("game");
+
+                // Set the grid template based on the map grid
+                game.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                game.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+                // Create the grid cells and set background image portions
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const cell = document.createElement("div");
+                        cell.className = "cell";
+                        cell.id = `cell_${i}x${j}`;
+
+                        // Calculate the background position for each cell
+                        const backgroundPosX = (j / cols) * 100;
+                        const backgroundPosY = (i / rows) * 100;
+                        cell.style.backgroundImage = `url(./img/maps/${mapImgName})`;
+                        cell.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+                        cell.style.backgroundPosition = `${backgroundPosX}% ${backgroundPosY}%`;
+
+                        game.appendChild(cell);
+                    }
+                }
+
+                // Get the player location
+                const playerCoords = document.getElementById("coords").value;
+                const [playerX, playerY] = playerCoords.split("x").map(Number);
+
+                // Display the player image where the player is
+                const playerCell = document.getElementById(`cell_${playerY}x${playerX}`);
+                const playerImgDiv = document.createElement("div");
+                playerImgDiv.className = "player";
+                playerImgDiv.style.backgroundImage = `url(${playerImgUrl})`;
+                playerCell.appendChild(playerImgDiv);
+
+                // Center the view around the player
+                centerView(playerX, playerY);
+            }
+
+            function movePlayer(newCoords){
+                // Get the player location
+                const playerCoords = document.getElementById("coords").value;
+                const [playerX, playerY] = playerCoords.split("x").map(Number);
+
+                // Reset the player image of the cell where the player was
+                const playerCell = document.getElementById(`cell_${playerY}x${playerX}`);
+                playerCell.removeChild(playerCell.querySelector(".player"));
+
+                // Update the player location
+                document.getElementById("coords").value = newCoords;
+                const [newPlayerX, newPlayerY] = newCoords.split("x").map(Number);
+
+                // Display the player image where the player is
+                const newPlayerCell = document.getElementById(`cell_${newPlayerY}x${newPlayerX}`);
+                const playerImgDiv = document.createElement("div");
+                playerImgDiv.className = "player";
+                playerImgDiv.style.backgroundImage = `url(${playerImgUrl})`;
+                newPlayerCell.appendChild(playerImgDiv);
+
+                // Center the view around the player
+                centerView(newPlayerX, newPlayerY);
+                socket.emit("movePlayer", newCoords);
+            }
+
+            function centerView(playerX, playerY) {
+                const game = document.getElementById("game");
+                const cellSize = game.clientWidth / 10; // Width and height of each cell
+                const offsetX = Math.max(0, playerX - 7.5) * cellSize;
+                const offsetY = Math.max(0, playerY - 7.5) * cellSize;
+                game.scrollLeft = offsetX;
+                game.scrollTop = offsetY;
+            }
+
+            // Initialize the map
+            initMap();
+
+            // Move the player with arrow keys
+            document.addEventListener("keydown", function(event){
+                const playerCoords = document.getElementById("coords").value;
+                const [playerX, playerY] = playerCoords.split("x").map(Number);
+                const mapGrid = document.getElementById("mapgrid").value;
+                const [rows, cols] = mapGrid.split("x").map(Number);
+
+                switch(event.key){
+                    case "ArrowUp":
+                        if (playerY > 0) movePlayer(`${playerX}x${playerY - 1}`);
+                        break;
+                    case "ArrowDown":
+                        if (playerY < rows - 1) movePlayer(`${playerX}x${playerY + 1}`);
+                        break;
+                    case "ArrowLeft":
+                        if (playerX > 0) movePlayer(`${playerX - 1}x${playerY}`);
+                        break;
+                    case "ArrowRight":
+                        if (playerX < cols - 1) movePlayer(`${playerX + 1}x${playerY}`);
+                        break;
+                }
+            });
+
+            socket.on("newPlayer", (character) => {
+                // if the player is already on the map, don't add it again
+                if (document.getElementById(`player_${character.charactername}`)) return;
+                socket.emit("newPlayer");
+                const { charactername, class: playerClass, img, coords } = character;
+                const [playerX, playerY] = coords.split("x").map(Number);
+                const playerImgUrl = `./img/classtoken/${playerClass.toLowerCase()}/${playerClass.toLowerCase()}_${img}.webp`;
+
+                // Create a new player token
+                const playerCell = document.getElementById(`cell_${playerY}x${playerX}`);
+                const playerImgDiv = document.createElement("div");
+                playerImgDiv.className = "player";
+                playerImgDiv.id = `player_${charactername}`;
+                playerImgDiv.style.backgroundImage = `url(${playerImgUrl})`;
+                playerCell.appendChild(playerImgDiv);
+            });
+            socket.on("movePlayer", (characterid, coords) => {
+                //coords is the new coordinates of the player "XxY"
+                console.log(characterid, coords);
+                const [playerX, playerY] = coords.split("x").map(Number);
+                const playerImgDiv = document.getElementById(`player_${characterid}`);
+                const playerCell = document.getElementById(`cell_${playerY}x${playerX}`);
+                playerCell.appendChild(playerImgDiv);
+
+                
+            });
 
         </script>
     </body>

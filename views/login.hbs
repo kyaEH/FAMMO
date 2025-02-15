@@ -85,6 +85,10 @@
                 bool = true;
             }
         });
+        document.getElementById('music').addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        }, false);
         //id main on hover play music
 
 

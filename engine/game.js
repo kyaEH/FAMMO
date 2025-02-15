@@ -52,7 +52,7 @@ async function getTriggers(location, callback) {
     // select the collection
     const collection = db.collection('triggers');
     // check if the user exists
-    const triggers = await collection.find({ triggerlocation: location }).toArray();
+    const triggers = await collection.find({ mapLinkedId: location }).toArray();
     // if the character exists
     if (triggers) {
         // get the location and the coords

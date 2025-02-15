@@ -157,4 +157,22 @@ async function getPlayersInLocation(location, callback) {
     }
 }
 
-module.exports = { createCharacter, getCharacters, getAllClasses, deleteCharacter, getCharacter, getPlayersInLocation };
+//get all the players in a location
+async function getCharactersInLocation(location, callback) {
+    // connect to the database
+    await client.connect();
+    // select the database
+    const db = client.db('FAMMO');
+    // select the collection
+    const collection = db.collection('character');
+    // find all characters in the specified location
+    const characters = await collection.find({ location: location }).toArray();
+    // if characters exist
+    if (characters) {
+        callback(characters);
+    } else {
+        callback(false);
+    }
+}
+
+module.exports = { createCharacter, getCharacters, getAllClasses, deleteCharacter, getCharacter, getPlayersInLocation, getCharactersInLocation };
